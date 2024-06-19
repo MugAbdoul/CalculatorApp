@@ -11,8 +11,7 @@ A simple and sleek calculator app built with React Native, inspired by the iPhon
 - Responsive layout
 
 ## Screenshots
-
-![Calculator Screenshot](assets/images//screenshot.png)
+<img src="assets/images//screenshot.png" alt="Calculator Screenshot" width="200"/>
 
 ## Getting Started
 
