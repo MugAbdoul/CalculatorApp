@@ -1,3 +1,5 @@
+## Student: Mugisha Abdoullatif, ID: 24978
+
 # React Native Calculator App
 
 A simple and sleek calculator app built with React Native, inspired by the iPhone calculator.
