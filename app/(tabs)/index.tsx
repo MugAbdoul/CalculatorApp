@@ -1,70 +1,152 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const App: React.FC = () => {
+  const [input, setInput] = useState<string>("");
+  const [result, setResult] = useState<string>("");
+  const [isResultShown, setIsResultShown] = useState<boolean>(false);
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const handleInput = (value: string): void => {
+    if (isResultShown) {
+      if (/\d/.test(value)) {
+        // If result is shown and a number is pressed, start fresh
+        setInput(value);
+        setResult("");
+      } else {
+        // If result is shown and an operator is pressed, use the result
+        setInput(result + value);
+      }
+      setIsResultShown(false);
+    } else {
+      setInput((prev) => prev + value);
+    }
+  };
+
+  const handleClear = (): void => {
+    setInput("");
+    setResult("");
+    setIsResultShown(false);
+  };
+
+  const handleToggleSign = (): void => {
+    if (input) {
+      if (input.startsWith('-')) {
+        setInput(input.substring(1));
+      } else {
+        setInput('-' + input);
+      }
+    }
+  };
+
+  const handlePercentage = (): void => {
+    if (input) {
+      const evaluated = eval(input);
+      setInput((evaluated / 100).toString());
+    }
+  };
+
+  const handleCalculate = (): void => {
+    try {
+      const evaluated = eval(input).toString();
+      setResult(evaluated);
+      setIsResultShown(true);
+    } catch (e) {
+      setResult("Error");
+    }
+  };
+
+  const renderButton = (value: string, onPress: () => void, style?: object) => (
+    <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
+      <Text style={[styles.buttonText, style && style.color ? { color: style.color } : {}]}>
+        {value}
+      </Text>
+    </TouchableOpacity>
   );
-}
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.resultContainer}>
+        <Text style={styles.inputText}>{input}</Text>
+        <Text style={styles.resultText}>{result}</Text>
+      </View>
+      <View style={styles.buttonsContainer}>
+        <View style={styles.row}>
+          {renderButton("C", handleClear, { backgroundColor: "#a6a6a6", color: "#000" })}
+          {renderButton("+/-", handleToggleSign, { backgroundColor: "#a6a6a6", color: "#000" })}
+          {renderButton("%", handlePercentage, { backgroundColor: "#a6a6a6", color: "#000" })}
+          {renderButton("/", () => handleInput("/"), { backgroundColor: "#f09a36" })}
+        </View>
+        <View style={styles.row}>
+          {renderButton("7", () => handleInput("7"))}
+          {renderButton("8", () => handleInput("8"))}
+          {renderButton("9", () => handleInput("9"))}
+          {renderButton("*", () => handleInput("*"), { backgroundColor: "#f09a36" })}
+        </View>
+        <View style={styles.row}>
+          {renderButton("4", () => handleInput("4"))}
+          {renderButton("5", () => handleInput("5"))}
+          {renderButton("6", () => handleInput("6"))}
+          {renderButton("-", () => handleInput("-"), { backgroundColor: "#f09a36" })}
+        </View>
+        <View style={styles.row}>
+          {renderButton("1", () => handleInput("1"))}
+          {renderButton("2", () => handleInput("2"))}
+          {renderButton("3", () => handleInput("3"))}
+          {renderButton("+", () => handleInput("+"), { backgroundColor: "#f09a36" })}
+        </View>
+        <View style={styles.row}>
+          {renderButton("0", () => handleInput("0"), { width: Dimensions.get('window').width / 2.2 })}
+          {renderButton(".", () => handleInput("."))}
+          {renderButton("=", handleCalculate, { backgroundColor: "#f09a36" })}
+        </View>
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#000',
+  },
+  resultContainer: {
+    flex: 2,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    backgroundColor: '#000',
+    padding: 20,
+  },
+  inputText: {
+    fontSize: 40,
+    color: '#fff',
+  },
+  resultText: {
+    fontSize: 50,
+    color: '#fff',
+  },
+  buttonsContainer: {
+    flex: 5,
+    backgroundColor: '#000',
+  },
+  row: {
     flexDirection: 'row',
+    justifyContent: 'space-around',
     alignItems: 'center',
-    gap: 8,
+    marginBottom: 10,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  button: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#333333',
+    height: 80,
+    width: 80,
+    borderRadius: 40,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  buttonText: {
+    fontSize: 30,
+    color: '#fff',
   },
 });
+
+export default App;
